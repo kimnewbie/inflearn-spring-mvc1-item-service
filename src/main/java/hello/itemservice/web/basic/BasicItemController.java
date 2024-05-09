@@ -17,6 +17,7 @@ public class BasicItemController {
 
     private final ItemRepository itemRepository;
 
+    // 상품 목록
     @GetMapping
     public String items(Model model) {
         List<Item> items = itemRepository.findAll();
@@ -24,10 +25,68 @@ public class BasicItemController {
         return "basic/items";
     }
 
+    // 상품 상세
     @GetMapping("/{itemId}")
     public String item(@PathVariable("itemId") Long itemId, Model model) {
         Item item = itemRepository.findById(itemId);
         model.addAttribute("item", item);
+        return "basic/item";
+    }
+
+    // 상품 등록 폼
+    @GetMapping("/add")
+    public String addForm() {
+        return "basic/addForm";
+    }
+
+    // 상품 등록 처리
+    // 밑에랑 중복이라 주석 처리 /add
+//    @PostMapping("/add")
+    public String addItemV1(@RequestParam("itemName") String itemName,
+                            @RequestParam("price") int price,
+                            @RequestParam("quantity") Integer quantity,
+                            Model model) {
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setQuantity(quantity);
+
+        itemRepository.save(item);
+
+        model.addAttribute("item", item);
+
+        return "basic/item";
+    }
+
+    /**
+     * @ModelAttribute("item") Item item
+     * model.addAttribute("item", item); 자동 추가
+     */
+//    @PostMapping("/add")
+    public String addItemV2(@ModelAttribute("item") Item item, Model model) {
+        itemRepository.save(item);
+        //model.addAttribute("item", item); // @ModelAttribute("item")와 같은 이름 사용. 자동 추가, 생략 가능
+        return "basic/item";
+    }
+
+    /**
+     * @ModelAttribute name 생략 가능
+     * model.addAttribute(item); 자동 추가, 생략 가능
+     * 생략시 model에 저장되는 name은 클래스명 첫글자만 소문자로 등록 Item -> item
+     */
+//    @PostMapping("/add")
+    public String addItemV3(@ModelAttribute Item item) {
+        itemRepository.save(item);
+        return "basic/item";
+    }
+
+    /**
+     * @ModelAttribute 자체 생략 가능
+     * model.addAttribute(item) 자동 추가
+     */
+    @PostMapping("/add")
+    public String addItemV4(Item item) {
+        itemRepository.save(item);
         return "basic/item";
     }
 
